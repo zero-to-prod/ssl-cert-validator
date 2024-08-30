@@ -1,0 +1,41 @@
+{
+  "type": "library",
+  "version": "0.1.0",
+  "name": "zero-to-prod/ssl-cert-validator",
+  "description": "A PHP library for validating SSL certificates.",
+  "keywords": [
+    "zero-to-prod",
+    "ssl-certificate",
+    "ssl-cert-validator"
+  ],
+  "homepage": "https://github.com/zero-to-prod/ssl-cert-validator",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "David Smith",
+      "email": "dave0016@gmail.com"
+    }
+  ],
+  "require": {
+    "php": ">=7.2",
+    "zero-to-prod/url": "^71.0.0",
+    "zero-to-prod/data-model": "^72.0.0",
+    "ext-openssl": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "Zerotoprod\\SslCertValidator\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Tests\\": "tests/"
+    }
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true,
+  "require-dev": {
+    "phpunit/phpunit": "^8.0",
+    "ext-json": "*"
+  }
+}

@@ -1,0 +1,14 @@
+services:
+  php72composer:
+    build:
+      context: docker
+      target: composer
+    volumes:
+      - ./:/app
+
+  php72:
+    build:
+      context: docker
+      target: php
+    volumes:
+      - ./:/app
