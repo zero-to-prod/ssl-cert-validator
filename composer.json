@@ -17,9 +17,13 @@
     }
   ],
   "require": {
-    "php": ">=7.2",
-    "zero-to-prod/url": "^71.0.0",
-    "zero-to-prod/data-model": "^72.0.0",
+    "php": ">=7.1",
+    "zero-to-prod/url": "^71.0",
+    "zero-to-prod/data-model": "^71.0",
+    "zero-to-prod/transformable": "^71.0",
+    "zero-to-prod/socket-client": "^71.0",
+    "zero-to-prod/stream-context": "^71.0",
+    "zero-to-prod/dynamic-setter": "^71.0",
     "ext-openssl": "*"
   },
   "autoload": {
@@ -35,7 +39,7 @@
   "minimum-stability": "dev",
   "prefer-stable": true,
   "require-dev": {
-    "phpunit/phpunit": "^8.0",
+    "phpunit/phpunit": "^7.0",
     "ext-json": "*"
   }
 }
