@@ -9,7 +9,7 @@ on:
       - main
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   phpunit:
@@ -21,14 +21,14 @@ jobs:
         options: --privileged
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Validate composer.json and composer.lock
         run: composer validate --strict
 
       - name: Cache Composer packages
         id: composer-cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: vendor
           key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
@@ -36,7 +36,7 @@ jobs:
             ${{ runner.os }}-php-
 
       - name: Install Composer dependencies
-        run: docker compose run --rm php72composer composer install --prefer-dist --no-progress --no-suggest
+        run: docker compose run --rm php71composer composer install --prefer-dist --no-progress --no-suggest
 
       - name: Run PHPUnit tests
-        run: docker compose run --rm php72 vendor/bin/phpunit
+        run: docker compose run --rm php71 vendor/bin/phpunit

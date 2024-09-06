@@ -23,7 +23,8 @@
     "zero-to-prod/socket-client": "^71.0",
     "zero-to-prod/stream-context": "^71.0",
     "zero-to-prod/dynamic-setter": "^71.0",
-    "ext-openssl": "*"
+    "ext-openssl": "*",
+    "ext-curl": "*"
   },
   "autoload": {
     "psr-4": {
