@@ -4,12 +4,11 @@ namespace Zerotoprod\SslCertValidator;
 
 use Exception;
 use Throwable;
-use Zerotoprod\SocketClient\SocketClient;
 use Zerotoprod\SslCertValidator\DataModels\SslCertificate;
 use Zerotoprod\SslCertValidator\DataModels\Url;
 use Zerotoprod\StreamContext\DataModels\Options;
 use Zerotoprod\StreamContext\DataModels\Ssl;
-use Zerotoprod\StreamContext\StreamContext;
+use Zerotoprod\StreamSocket\StreamSocket;
 
 class Certificate
 {
@@ -27,16 +26,15 @@ class Certificate
      */
     public static function fromHostName(string $hostname): SslCertificate
     {
-        $Url = Url::parse($hostname);
-        $ClientStream = SocketClient::create(
-            'ssl://'.$Url->host.':'.($Url->port ?: 443),
+        $ClientStream = StreamSocket::client(
+            Url::parse($hostname)->toSsl(),
             30,
             STREAM_CLIENT_CONNECT,
-            StreamContext::create([
+            stream_context_create([
                 Options::ssl => [
                     Ssl::capture_peer_cert => true
                 ]
-            ])->context
+            ])
         );
         $params = $ClientStream->getParams();
         $ClientStream->close();
@@ -80,10 +78,9 @@ class Certificate
      */
     public static function hostIsValid(string $hostname): bool
     {
-        $Url = Url::parse($hostname);
         try {
-            SocketClient::create(
-                'ssl://'.$Url->host.':'.($Url->port ?: 443),
+            StreamSocket::client(
+                Url::parse($hostname)->toSsl(),
                 30,
                 STREAM_CLIENT_CONNECT,
                 stream_context_create()
@@ -100,17 +97,16 @@ class Certificate
 
     public static function isSelfSigned(string $hostname): bool
     {
-        $Url = Url::parse($hostname);
-        $ClientStream = SocketClient::create(
-            'ssl://'.$Url->host.':'.($Url->port ?: 443),
+        $ClientStream = StreamSocket::client(
+            Url::parse($hostname)->toSsl(),
             30,
             STREAM_CLIENT_CONNECT,
-            StreamContext::create([
+            stream_context_create([
                 Options::ssl => [
                     Ssl::capture_peer_cert => true,
                     Ssl::allow_self_signed => true,
                 ]
-            ])->context
+            ])
         );
 
         $cert = openssl_x509_parse(
@@ -130,20 +126,19 @@ class Certificate
      */
     public static function isTrustedRoot(string $hostname, string $cafile): bool
     {
-        $Url = Url::parse($hostname);
         try {
-            $ClientStream = SocketClient::create(
-                "ssl://$Url->host:443",
+            $ClientStream = StreamSocket::client(
+                Url::parse($hostname)->toSsl(),
                 30,
                 STREAM_CLIENT_CONNECT,
-                StreamContext::create([
+                stream_context_create([
                     Options::ssl => [
                         Ssl::verify_peer => true,
                         Ssl::verify_peer_name => true,
                         Ssl::allow_self_signed => false,
                         Ssl::cafile => $cafile
                     ]
-                ])->context
+                ])
             );
 
             if ($ClientStream->client) {
