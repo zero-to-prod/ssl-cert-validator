@@ -3,15 +3,12 @@
 namespace Zerotoprod\SslCertValidator;
 
 use Exception;
-use RuntimeException;
 use Throwable;
-use Zerotoprod\SocketClient\DataModels\SocketClientArgs;
-use Zerotoprod\SocketClient\StreamSocket;
+use Zerotoprod\SocketClient\SocketClient;
 use Zerotoprod\SslCertValidator\DataModels\SslCertificate;
 use Zerotoprod\SslCertValidator\DataModels\Url;
 use Zerotoprod\StreamContext\DataModels\Options;
 use Zerotoprod\StreamContext\DataModels\Ssl;
-use Zerotoprod\StreamContext\DataModels\StreamContextArgs;
 use Zerotoprod\StreamContext\StreamContext;
 
 class Certificate
@@ -31,23 +28,18 @@ class Certificate
     public static function fromHostName(string $hostname): SslCertificate
     {
         $Url = Url::parse($hostname);
-        $SocketClient = StreamSocket::client(
-            SocketClientArgs::new()
-                ->set_address('ssl://'.$Url->host.':'.($Url->port ?: 443))
-                ->set_timeout(30)
-                ->set_flags(STREAM_CLIENT_CONNECT)
-                ->set_context(
-                    StreamContext::create([
-                        StreamContextArgs::Options => [
-                            Options::ssl => [
-                                Ssl::capture_peer_cert => true
-                            ]
-                        ]
-                    ])
-                )
+        $ClientStream = SocketClient::create(
+            'ssl://'.$Url->host.':'.($Url->port ?: 443),
+            30,
+            STREAM_CLIENT_CONNECT,
+            StreamContext::create([
+                Options::ssl => [
+                    Ssl::capture_peer_cert => true
+                ]
+            ])->context
         );
-        $params = $SocketClient->getParams();
-        $SocketClient->close();
+        $params = $ClientStream->getParams();
+        $ClientStream->close();
 
         $certificates = array_merge(
             [$params['options']['ssl']['peer_certificate']],
@@ -90,20 +82,17 @@ class Certificate
     {
         $Url = Url::parse($hostname);
         try {
-            $client = stream_socket_client(
+            SocketClient::create(
                 'ssl://'.$Url->host.':'.($Url->port ?: 443),
-                $error_code,
-                $error_message,
                 30,
                 STREAM_CLIENT_CONNECT,
                 stream_context_create()
-            );
-            fclose($client);
-        } catch (Throwable $e) {
-            if (strpos($e->getMessage(), 'did not match expected')) {
+            )->close();
+        } catch (Throwable $Throwable) {
+            if (strpos($Throwable->getMessage(), 'did not match expected')) {
                 return false;
             }
-            throw $e;
+            throw $Throwable;
         }
 
         return true;
@@ -112,27 +101,22 @@ class Certificate
     public static function isSelfSigned(string $hostname): bool
     {
         $Url = Url::parse($hostname);
-        $SocketClient = StreamSocket::client(
-            SocketClientArgs::new()
-                ->set_address('ssl://'.$Url->host.':'.($Url->port ?: 443))
-                ->set_timeout(30)
-                ->set_flags(STREAM_CLIENT_CONNECT)
-                ->set_context(
-                    StreamContext::create([
-                        StreamContextArgs::Options => [
-                            Options::ssl => [
-                                Ssl::capture_peer_cert => true,
-                                Ssl::allow_self_signed => true,
-                            ]
-                        ]
-                    ])
-                )
+        $ClientStream = SocketClient::create(
+            'ssl://'.$Url->host.':'.($Url->port ?: 443),
+            30,
+            STREAM_CLIENT_CONNECT,
+            StreamContext::create([
+                Options::ssl => [
+                    Ssl::capture_peer_cert => true,
+                    Ssl::allow_self_signed => true,
+                ]
+            ])->context
         );
 
         $cert = openssl_x509_parse(
-            $SocketClient->getParams()['options']['ssl']['peer_certificate']
+            $ClientStream->getParams()['options']['ssl']['peer_certificate']
         );
-        $SocketClient->close();
+        $ClientStream->close();
 
         return $cert['issuer'] === $cert['subject'];
     }
@@ -148,27 +132,22 @@ class Certificate
     {
         $Url = Url::parse($hostname);
         try {
-            $SocketClient = StreamSocket::client(
-                SocketClientArgs::new()
-                    ->set_address("ssl://$Url->host:443")
-                    ->set_timeout(30)
-                    ->set_flags(STREAM_CLIENT_CONNECT)
-                    ->set_context(
-                        StreamContext::create([
-                            StreamContextArgs::Options => [
-                                Options::ssl => [
-                                    Ssl::verify_peer => true,
-                                    Ssl::verify_peer_name => true,
-                                    Ssl::allow_self_signed => false,
-                                    Ssl::cafile => $cafile
-                                ]
-                            ]
-                        ])
-                    )
+            $ClientStream = SocketClient::create(
+                "ssl://$Url->host:443",
+                30,
+                STREAM_CLIENT_CONNECT,
+                StreamContext::create([
+                    Options::ssl => [
+                        Ssl::verify_peer => true,
+                        Ssl::verify_peer_name => true,
+                        Ssl::allow_self_signed => false,
+                        Ssl::cafile => $cafile
+                    ]
+                ])->context
             );
 
-            if ($SocketClient->client) {
-                $SocketClient->close();
+            if ($ClientStream->client) {
+                $ClientStream->close();
 
                 return true;
             }
@@ -185,14 +164,5 @@ class Certificate
         }
 
         return false;
-    }
-
-    private static function extractOcspUrl(string $authorityInfoAccess): ?string
-    {
-        if (preg_match('/OCSP - URI:(http[^\s]+)/', $authorityInfoAccess, $matches)) {
-            return $matches[1];
-        }
-
-        return null;
     }
 }

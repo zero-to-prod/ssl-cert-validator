@@ -6,6 +6,9 @@ use Tests\TestCase;
 use Throwable;
 use Zerotoprod\SslCertValidator\Certificate;
 use Zerotoprod\SslCertValidator\Helpers\DataModel;
+use Zerotoprod\StreamContext\DataModels\Context;
+use Zerotoprod\StreamContext\DataModels\Options;
+use Zerotoprod\StreamContext\DataModels\Ssl;
 
 class CertificateTest extends TestCase
 {
@@ -18,6 +21,15 @@ class CertificateTest extends TestCase
      */
     public function validates_a_hostname(string $hostname, bool $expected): void
     {
+        Context::new()
+            ->set_Options(
+                Options::new()->set_ssl(
+                    Ssl::new()
+                        ->set_peer_name('bogus')
+                        ->set_verify_peer('bogus_site')
+                )
+            );
+
         $this->assertSame($expected, Certificate::isExpired($hostname));
     }
 
