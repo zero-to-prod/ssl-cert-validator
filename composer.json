@@ -1,7 +1,7 @@
 {
   "type": "library",
   "name": "zero-to-prod/ssl-cert-validator",
-  "description": "Validate ssl certificates.",
+  "description": "Fetch, validate, and verify SSL certificates.",
   "keywords": [
     "zero-to-prod",
     "ssl-certificate",

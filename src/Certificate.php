@@ -9,19 +9,49 @@ use Zerotoprod\StreamContext\DataModels\Options;
 use Zerotoprod\StreamContext\DataModels\Ssl;
 use Zerotoprod\StreamSocket\StreamSocket;
 
+/**
+ * SSL Certificate Validator.
+ *
+ * The `Certificate` class provides methods to fetch, validate, and verify SSL certificates for a given hostname.
+ * It supports operations like checking if the certificate is expired, self-signed, or trusted by a specific Certificate Authority (CA).
+ *
+ * Key methods:
+ * - `fromHostName`: Fetch SSL certificate details from a hostname.
+ * - `isExpired`: Check if an SSL certificate is expired.
+ * - `hostIsValid`: Validate if the hostname has a valid SSL certificate.
+ * - `isSelfSigned`: Determine if the SSL certificate is self-signed.
+ * - `isTrustedRoot`: Verify if the SSL certificate is trusted by a CA.
+ *
+ * Example usage:
+ * ```
+ * Certificate::fromHostName('https://example.com');
+ * Certificate::hostIsValid('https://example.com');
+ * Certificate::isExpired('example.com');
+ * Certificate::isSelfSigned('example.com');
+ * Certificate::isTrustedRoot('example.com', '/path/to/cafile.pem');
+ * ```
+ *
+ * @see https://github.com/zero-to-prod/ssl-cert-validator
+ */
 class Certificate
 {
-
     /**
-     * Fetches the SSL certificate details from a hostname.
+     * Fetches SSL certificate details from a hostname.
      *
-     * This method parses the given hostname to create a URL object, sets up
-     * a stream socket client to connect to the host over SSL, and retrieves
-     * the SSL certificate.
+     * Parses the hostname, connects using SSL, and retrieves the certificate.
      *
-     * @param  string  $hostname  The hostname or URL to fetch the SSL certificate from.
+     * Example:
+     * ```
+     * Certificate::fromHostName('https://badssl.com/')
+     * Certificate::fromHostName('badssl.com')
+     * Certificate::fromHostName('badssl.com:999')
+     * ```
      *
-     * @return SslCertificate The SSL certificate information.
+     * @param  string  $hostname  The hostname or URL.
+     *
+     * @return SslCertificate  The SSL certificate details.
+     *
+     * @see https://github.com/zero-to-prod/ssl-cert-validator
      */
     public static function fromHostName(string $hostname): SslCertificate
     {
@@ -49,20 +79,20 @@ class Certificate
     }
 
     /**
-     * Validate an ssl certificate.
+     * Checks if an SSL certificate is expired.
      *
-     * Example
+     * Example:
      * ```
-     * Certificate::validate('https://badssl.com/')
-     * Certificate::validate('badssl.com')
-     * Certificate::validate('badssl.com:999')
+     * Certificate::isExpired('https://badssl.com/')
+     * Certificate::isExpired('badssl.com')
+     * Certificate::isExpired('badssl.com:999')
      * ```
      *
+     * @param  string  $hostname  The hostname or URL.
+     * @param  ?int    $time      (Optional) Timestamp to check against.
      *
-     * @param  string  $hostname
-     * @param  ?int    $time
+     * @return bool  True if the certificate is valid, false if expired.
      *
-     * @return bool
      * @see https://github.com/zero-to-prod/ssl-cert-validator
      */
     public static function isExpired(string $hostname, int $time = null): bool
@@ -71,7 +101,25 @@ class Certificate
     }
 
     /**
-     * @throws Throwable
+     * Checks if the hostname's SSL certificate is valid.
+     *
+     * Tries to connect using SSL. Returns true if the certificate is valid, false if it doesn't match the hostname.
+     * Throws an exception on other SSL errors.
+     *
+     * Example:
+     * ```
+     * Certificate::hostIsValid('https://badssl.com/')
+     * Certificate::hostIsValid('badssl.com')
+     * Certificate::hostIsValid('badssl.com:999')
+     * ```
+     *
+     * @param  string  $hostname  The hostname or URL.
+     *
+     * @return bool  True if valid, false if the certificate doesn't match.
+     *
+     * @throws Throwable  On SSL connection errors (non-hostname mismatch).
+     *
+     * @see https://github.com/zero-to-prod/ssl-cert-validator
      */
     public static function hostIsValid(string $hostname): bool
     {
@@ -92,6 +140,27 @@ class Certificate
         return true;
     }
 
+    /**
+     * Checks if the SSL certificate is self-signed.
+     *
+     * Connects to the hostname, retrieves the SSL certificate, and compares the
+     * issuer with the subject. Returns true if they match (self-signed), false otherwise.
+     *
+     *  Example:
+     *  ```
+     *  Certificate::isSelfSigned('https://badssl.com/')
+     *  Certificate::isSelfSigned('badssl.com')
+     *  Certificate::isSelfSigned('badssl.com:999')
+     *  ```
+     *
+     * @param  string  $hostname  The hostname or URL.
+     *
+     * @return bool  True if self-signed, false otherwise.
+     *
+     * @throws Throwable  On SSL connection or certificate parsing errors.
+     *
+     * @see https://github.com/zero-to-prod/ssl-cert-validator
+     */
     public static function isSelfSigned(string $hostname): bool
     {
         $ClientStream = StreamSocket::client(
@@ -115,11 +184,25 @@ class Certificate
     }
 
     /**
-     * @param  string  $hostname
-     * @param  string  $cafile  Location of Certificate Authority file on local filesystem which should be used with the verify_peer context option to authenticate the identity of the remote peer.
+     * Checks if the SSL certificate is trusted by a given Certificate Authority (CA).
      *
-     * @return bool
-     * @throws Throwable
+     * Connects to the hostname and verifies the SSL certificate against the provided CA file.
+     *
+     *  Example:
+     * ```
+     * Certificate::isTrustedRoot('https://badssl.com/')
+     * Certificate::isTrustedRoot('badssl.com')
+     * Certificate::isTrustedRoot('badssl.com:999')
+     * ```
+     *
+     * @param  string  $hostname  The hostname or URL.
+     * @param  string  $cafile    Path to the Certificate Authority file used for verification.
+     *
+     * @return bool  True if the certificate is trusted by the CA, false otherwise.
+     *
+     * @throws Throwable  On SSL connection errors or certificate validation failures.
+     *
+     * @see https://github.com/zero-to-prod/ssl-cert-validator
      */
     public static function isTrustedRoot(string $hostname, string $cafile): bool
     {
