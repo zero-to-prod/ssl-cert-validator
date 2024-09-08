@@ -2,7 +2,6 @@
 
 namespace Zerotoprod\SslCertValidator;
 
-use Exception;
 use Throwable;
 use Zerotoprod\SslCertValidator\DataModels\SslCertificate;
 use Zerotoprod\SslCertValidator\DataModels\Url;
@@ -32,7 +31,9 @@ class Certificate
             STREAM_CLIENT_CONNECT,
             stream_context_create([
                 Options::ssl => [
-                    Ssl::capture_peer_cert => true
+                    Ssl::capture_peer_cert => true,
+                    Ssl::verify_peer_name => false,
+                    Ssl::verify_peer => false,
                 ]
             ])
         );
@@ -66,11 +67,7 @@ class Certificate
      */
     public static function isExpired(string $hostname, int $time = null): bool
     {
-        try {
-            return self::fromHostName($hostname)->isValid($time ?: time());
-        } catch (Exception $e) {
-            return false;
-        }
+        return self::fromHostName($hostname)->isValid($time ?: time());
     }
 
     /**
