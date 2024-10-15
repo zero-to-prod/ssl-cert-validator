@@ -3,10 +3,11 @@
 namespace Zerotoprod\SslCertValidator;
 
 use Throwable;
-use Zerotoprod\SslCertValidator\DataModels\SslCertificate;
+use Zerotoprod\SslCertValidator\DataModels\Certificate;
 use Zerotoprod\SslCertValidator\DataModels\Url;
 use Zerotoprod\StreamContext\DataModels\Options;
 use Zerotoprod\StreamContext\DataModels\Ssl;
+use Zerotoprod\StreamSocket\DataModels\ClientStream;
 use Zerotoprod\StreamSocket\StreamSocket;
 
 /**
@@ -33,8 +34,32 @@ use Zerotoprod\StreamSocket\StreamSocket;
  *
  * @see https://github.com/zero-to-prod/ssl-cert-validator
  */
-class Certificate
+class SslCertificate
 {
+    public static function from(string $hostname, array $options = []): Certificate
+    {
+        return self::certificates($hostname, $options)[0];
+    }
+
+    public static function fromFile($pathToCertificate): Certificate
+    {
+        $fileContents = file_get_contents($pathToCertificate);
+        if (! strpos($fileContents, 'BEGIN CERTIFICATE')) {
+            $fileContents = self::der2pem($fileContents);
+        }
+
+        return self::createFromString($fileContents);
+    }
+    private static function clientStream(string $address, array $options = []): ClientStream
+    {
+        return StreamSocket::client(
+            Url::parse($address)->toSsl(),
+            30,
+            STREAM_CLIENT_CONNECT,
+            stream_context_create([Options::ssl => $options])
+        );
+    }
+
     /**
      * Fetches SSL certificate details from a hostname.
      *
@@ -49,55 +74,43 @@ class Certificate
      *
      * @param  string  $hostname  The hostname or URL.
      *
-     * @return SslCertificate  The SSL certificate details.
+     * @return array  The SSL certificate details.
      *
      * @see https://github.com/zero-to-prod/ssl-cert-validator
      */
-    public static function fromHostName(string $hostname): SslCertificate
+    public static function rawCertificates(string $hostname, array $options = []): array
     {
-        $ClientStream = StreamSocket::client(
-            Url::parse($hostname)->toSsl(),
-            30,
-            STREAM_CLIENT_CONNECT,
-            stream_context_create([
-                Options::ssl => [
-                    Ssl::capture_peer_cert => true,
-                    Ssl::verify_peer_name => false,
-                    Ssl::verify_peer => false,
-                ]
-            ])
-        );
+        $ClientStream = self::clientStream($hostname, $options);
         $params = $ClientStream->getParams();
         $ClientStream->close();
 
-        $certificates = array_merge(
+        return array_merge(
             [$params['options']['ssl']['peer_certificate']],
             $params['options']['ssl']['peer_certificate_chain'] ?? []
         );
-
-        return SslCertificate::from(openssl_x509_parse($certificates[0]));
     }
 
     /**
-     * Checks if an SSL certificate is expired.
+     * @param  string  $hostname
+     * @param  array   $options
      *
-     * Example:
-     * ```
-     * Certificate::isExpired('https://badssl.com/')
-     * Certificate::isExpired('badssl.com')
-     * Certificate::isExpired('badssl.com:999')
-     * ```
-     *
-     * @param  string  $hostname  The hostname or URL.
-     * @param  ?int    $time      (Optional) Timestamp to check against.
-     *
-     * @return bool  True if the certificate is valid, false if expired.
-     *
-     * @see https://github.com/zero-to-prod/ssl-cert-validator
+     * @return Certificate[]
      */
-    public static function isExpired(string $hostname, int $time = null): bool
+    public static function certificates(string $hostname, array $options = []): array
     {
-        return self::fromHostName($hostname)->isValid($time ?: time());
+        return array_map(static function ($resource) {
+            return Certificate::from(openssl_x509_parse($resource));
+        },
+            self::rawCertificates(
+                $hostname,
+                array_merge([
+                    Ssl::capture_peer_cert => true,
+                    Ssl::verify_peer_name => false,
+                    Ssl::verify_peer => false,
+                ],
+                    $options
+                )
+            ));
     }
 
     /**
@@ -124,12 +137,7 @@ class Certificate
     public static function hostIsValid(string $hostname): bool
     {
         try {
-            StreamSocket::client(
-                Url::parse($hostname)->toSsl(),
-                30,
-                STREAM_CLIENT_CONNECT,
-                stream_context_create()
-            )->close();
+            self::clientStream($hostname)->close();
         } catch (Throwable $Throwable) {
             if (strpos($Throwable->getMessage(), 'did not match expected')) {
                 return false;

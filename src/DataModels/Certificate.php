@@ -5,28 +5,9 @@ namespace Zerotoprod\SslCertValidator\DataModels;
 use Zerotoprod\SslCertValidator\Helpers\DataModel;
 
 /**
- * @internal
- *
- * @method self setName(string $name)
- * @method self setSubject(array $subject)
- * @method self setHash(string $hash)
- * @method self setIssuer(array $issuer)
- * @method self setVersion(int $version)
- * @method self setSerialNumber(string $serialNumber)
- * @method self setSerialNumberHex(string $serialNumberHex)
- * @method self setValidFrom(string $validFrom)
- * @method self setValidTo(string $validTo)
- * @method self setValidFromTimeT(int $validFromTimeT)
- * @method self setValidToTimeT(int $validToTimeT)
- * @method self setSignatureTypeSN(string $signatureTypeSN)
- * @method self setSignatureTypeLN(string $signatureTypeLN)
- * @method self setSignatureTypeNID(int $signatureTypeNID)
- * @method self setPurposes(array $purposes)
- * @method self setExtensions(array $extensions)
- *
- * @see https://github.com/zero-to-prod/ssl-cert-validator
+ * @link https://github.com/zero-to-prod/ssl-cert-validator
  */
-class SslCertificate
+class Certificate
 {
     use DataModel;
 
@@ -95,18 +76,43 @@ class SslCertificate
     /** @var array $extensions */
     public $extensions;
 
-    public function isValid(int $time): bool
+    /**
+     * Checks if an SSL certificate is expired.
+     *
+     * Example:
+     * ```
+     * Certificate::from('https://badssl.com/')->isExpired(time())
+     * Certificate::from('badssl.com')->isExpired()
+     * Certificate::from('badssl.com:999')->isExpired()
+     * ```
+     *
+     * @param  ?int  $time  (Optional) Timestamp to check against.
+     *
+     * @return bool  True if the certificate is valid, false if expired.
+     *
+     * @see https://github.com/zero-to-prod/ssl-cert-validator
+     */
+    public function isValid(?int $time = null): bool
     {
-        return !($time < $this->validFromTime() || $time > $this->validToTime());
+        if (!$time) {
+            $time = time();
+        }
+
+        return !($time < $this->validFromDate() || $time > $this->expirationDate());
     }
 
-    public function validFromTime(): int
+    public function validFromDate(): int
     {
         return $this->validFrom_time_t;
     }
 
-    public function validToTime(): int
+    public function expirationDate(): int
     {
         return $this->validTo_time_t;
+    }
+
+    public function daysUntilExpirationDate(): int
+    {
+        return ($this->validTo_time_t - $this->validFrom_time_t) / 86400;
     }
 }

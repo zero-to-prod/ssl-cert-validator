@@ -4,7 +4,7 @@ namespace Tests\Unit;
 
 use Tests\TestCase;
 use Throwable;
-use Zerotoprod\SslCertValidator\Certificate;
+use Zerotoprod\SslCertValidator\SslCertificate;
 use Zerotoprod\SslCertValidator\Helpers\DataModel;
 
 class CertificateTest extends TestCase
@@ -18,7 +18,7 @@ class CertificateTest extends TestCase
      */
     public function validates_a_hostname(string $hostname, bool $expected): void
     {
-        $this->assertSame($expected, Certificate::isExpired($hostname));
+        $this->assertSame($expected, SslCertificate::from($hostname)->isValid());
     }
 
     public function hosts(): array
@@ -39,7 +39,7 @@ class CertificateTest extends TestCase
      */
     public function wrong_host(): void
     {
-        self::assertFalse(Certificate::hostIsValid('wrong.host.badssl.com'));
+        self::assertFalse(SslCertificate::hostIsValid('wrong.host.badssl.com'));
     }
 
     /**
@@ -50,7 +50,7 @@ class CertificateTest extends TestCase
      */
     public function correct_host(): void
     {
-        self::assertTrue(Certificate::hostIsValid('badssl.com'));
+        self::assertTrue(SslCertificate::hostIsValid('badssl.com'));
     }
 
     /**
@@ -61,7 +61,7 @@ class CertificateTest extends TestCase
      */
     public function isSelfSigned(): void
     {
-        self::assertTrue(Certificate::isSelfSigned('self-signed.badssl.com'));
+        self::assertTrue(SslCertificate::isSelfSigned('self-signed.badssl.com'));
     }
 
     /**
@@ -72,7 +72,7 @@ class CertificateTest extends TestCase
      */
     public function isNotSelfSigned(): void
     {
-        self::assertFalse(Certificate::isSelfSigned('badssl.com'));
+        self::assertFalse(SslCertificate::isSelfSigned('badssl.com'));
     }
 
     /**
@@ -84,7 +84,7 @@ class CertificateTest extends TestCase
     public function hasUntrustedRoot(): void
     {
         self::assertFalse(
-            Certificate::isTrustedRoot(
+            SslCertificate::isTrustedRoot(
                 'untrusted-root.badssl.com',
                 '/usr/local/etc/ssl/certs/cacert.pem'
             )
@@ -100,7 +100,7 @@ class CertificateTest extends TestCase
     public function hasTrustedRoot(): void
     {
         self::assertTrue(
-            Certificate::isTrustedRoot(
+            SslCertificate::isTrustedRoot(
                 'badssl.com',
                 '/usr/local/etc/ssl/certs/cacert.pem'
             )
