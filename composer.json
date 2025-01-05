@@ -8,13 +8,41 @@
     "ssl-cert-validator"
   ],
   "homepage": "https://github.com/zero-to-prod/ssl-cert-validator",
+  "support": {
+    "email": "dave0016@gmail.com",
+    "issues": "https://github.com/zero-to-prod/ssl-cert-validator/issues",
+    "source": "https://github.com/zero-to-prod/ssl-cert-validator",
+    "docs": "https://zero-to-prod.github.io/ssl-cert-validator/",
+    "security": "https://github.com/zero-to-prod/ssl-cert-validator/blob/main/SECURITY.md"
+  },
   "license": "MIT",
+  "readme": "./README.md",
   "authors": [
     {
       "name": "David Smith",
-      "email": "dave0016@gmail.com"
+      "email": "dave0016@gmail.com",
+      "homepage": "https://davidsmith.blog/",
+      "role": "maintainer"
     }
   ],
+  "funding": [
+    {
+      "type": "GitHub",
+      "url": "https://github.com/sponsors/zero-to-prod"
+    }
+  ],
+  "scripts": {
+    "test-all": [
+      "sh test.sh"
+    ],
+    "docker": [
+      "docker compose run --rm "
+    ]
+  },
+  "scripts-descriptions": {
+    "test-all": "tests all php versions",
+    "docker": "runs a docker container"
+  },
   "require": {
     "php": ">=7.1",
     "zero-to-prod/url": "^71.0",
@@ -37,7 +65,7 @@
     }
   },
   "require-dev": {
-    "phpunit/phpunit": "^7.0",
+    "phpunit/phpunit": "*",
     "ext-json": "*"
   }
 }

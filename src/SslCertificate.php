@@ -137,15 +137,13 @@ class SslCertificate
     public static function hostIsValid(string $hostname): bool
     {
         try {
-            self::clientStream($hostname)->close();
+            return self::clientStream($hostname)->close();
         } catch (Throwable $Throwable) {
             if (strpos($Throwable->getMessage(), 'did not match expected')) {
                 return false;
             }
             throw $Throwable;
         }
-
-        return true;
     }
 
     /**

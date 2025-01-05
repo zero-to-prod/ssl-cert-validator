@@ -6,6 +6,7 @@
 [![Packagist Version](https://img.shields.io/packagist/v/zero-to-prod/ssl-cert-validator?color=f28d1a)](https://packagist.org/packages/zero-to-prod/ssl-cert-validator)
 [![GitHub repo size](https://img.shields.io/github/repo-size/zero-to-prod/ssl-cert-validator)](https://github.com/zero-to-prod/ssl-cert-validator)
 [![License](https://img.shields.io/packagist/l/zero-to-prod/ssl-cert-validator?color=red)](https://github.com/zero-to-prod/ssl-cert-validator/blob/main/LICENSE.md)
+[![Hits-of-Code](https://hitsofcode.com/github/zero-to-prod/ssl-cert-validator?branch=main)](https://hitsofcode.com/github/zero-to-prod/ssl-cert-validator/view?branch=main)
 
 Fetch, validate, and verify SSL certificates.
 
