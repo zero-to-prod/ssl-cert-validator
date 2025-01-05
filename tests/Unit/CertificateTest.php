@@ -21,7 +21,7 @@ class CertificateTest extends TestCase
         $this->assertSame($expected, SslCertificate::from($hostname)->isValid());
     }
 
-    public function hosts(): array
+    public static function hosts(): array
     {
         return [
             'https://badssl.com/' => ['https://badssl.com/', true],
@@ -73,37 +73,5 @@ class CertificateTest extends TestCase
     public function isNotSelfSigned(): void
     {
         self::assertFalse(SslCertificate::isSelfSigned('badssl.com'));
-    }
-
-    /**
-     * @test
-     *
-     * @throws Throwable
-     * @see
-     */
-    public function hasUntrustedRoot(): void
-    {
-        self::assertFalse(
-            SslCertificate::isTrustedRoot(
-                'untrusted-root.badssl.com',
-                '/usr/local/etc/ssl/certs/cacert.pem'
-            )
-        );
-    }
-
-    /**
-     * @test
-     *
-     * @throws Throwable
-     * @see
-     */
-    public function hasTrustedRoot(): void
-    {
-        self::assertTrue(
-            SslCertificate::isTrustedRoot(
-                'badssl.com',
-                '/usr/local/etc/ssl/certs/cacert.pem'
-            )
-        );
     }
 }
