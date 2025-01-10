@@ -15,7 +15,7 @@ Fetch, validate, and verify SSL certificates.
 Install the package via Composer:
 
 ```bash
-composer require zerotoprod/ssl-cert-validator
+composer require zero-to-prod/ssl-cert-validator
 ```
 
 ## Usage

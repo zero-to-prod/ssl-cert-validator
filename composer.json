@@ -31,18 +31,6 @@
       "url": "https://github.com/sponsors/zero-to-prod"
     }
   ],
-  "scripts": {
-    "test-all": [
-      "sh test.sh"
-    ],
-    "docker": [
-      "docker compose run --rm "
-    ]
-  },
-  "scripts-descriptions": {
-    "test-all": "tests all php versions",
-    "docker": "runs a docker container"
-  },
   "require": {
     "php": ">=7.1",
     "zero-to-prod/url": "^71.0",
