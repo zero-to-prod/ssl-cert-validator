@@ -1,4 +1,6 @@
-# `Zerotoprod\SslCertValidator`
+# Zerotoprod\SslCertValidator
+
+![](./art/logo.png)
 
 [![Repo](https://img.shields.io/badge/github-gray?logo=github)](https://github.com/zero-to-prod/ssl-cert-validator)
 [![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/zero-to-prod/ssl-cert-validator/test.yml?label=tests)](https://github.com/zero-to-prod/ssl-cert-validator/actions)
@@ -32,7 +34,7 @@ Fetch, validate, and verify SSL certificates.
 
 ## Installation
 
-Install `Zerotoprod\DynamicSetter` via [Composer](https://getcomposer.org/):
+Install `Zerotoprod\SslCertValidator` via [Composer](https://getcomposer.org/):
 
 ```bash
 composer require zero-to-prod/ssl-cert-validator
