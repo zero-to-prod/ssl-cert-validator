@@ -34,10 +34,10 @@
   "require": {
     "php": ">=7.1",
     "zero-to-prod/url": "^71.0",
-    "zero-to-prod/data-model": "^71.0",
+    "zero-to-prod/data-model": "^81.0",
     "zero-to-prod/transformable": "^71.0",
-    "zero-to-prod/stream-socket": "^71.0",
-    "zero-to-prod/stream-context": "^71.0",
+    "zero-to-prod/stream-socket": "^81.0",
+    "zero-to-prod/stream-context": "^81.0",
     "zero-to-prod/dynamic-setter": "^71.0",
     "ext-openssl": "*",
     "ext-curl": "*"
