@@ -2,21 +2,15 @@
 
 namespace Tests\Unit;
 
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
-use Throwable;
 use Zerotoprod\SslCertValidator\SslCertificate;
-use Zerotoprod\SslCertValidator\Helpers\DataModel;
 
 class CertificateTest extends TestCase
 {
-    /**
-     * @test
-     *
-     * @dataProvider hosts
-     *
-     * @see          DataModel
-     */
-    public function validates_a_hostname(string $hostname, bool $expected): void
+    #[DataProvider('hosts')]
+    #[Test] public function validates_a_hostname(string $hostname, bool $expected): void
     {
         $this->assertSame($expected, SslCertificate::from($hostname)->isValid());
     }
@@ -31,46 +25,22 @@ class CertificateTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     *
-     * @throws Throwable
-     * @see
-     */
-    public function wrong_host(): void
+    #[Test] public function wrong_host(): void
     {
         self::assertFalse(SslCertificate::hostIsValid('wrong.host.badssl.com'));
     }
 
-    /**
-     * @test
-     *
-     * @throws Throwable
-     * @see
-     */
-    public function correct_host(): void
+    #[Test] public function correct_host(): void
     {
         self::assertTrue(SslCertificate::hostIsValid('badssl.com'));
     }
 
-    /**
-     * @test
-     *
-     * @throws Throwable
-     * @see
-     */
-    public function isSelfSigned(): void
+    #[Test] public function isSelfSigned(): void
     {
         self::assertTrue(SslCertificate::isSelfSigned('self-signed.badssl.com'));
     }
 
-    /**
-     * @test
-     *
-     * @throws Throwable
-     * @see
-     */
-    public function isNotSelfSigned(): void
+    #[Test] public function isNotSelfSigned(): void
     {
         self::assertFalse(SslCertificate::isSelfSigned('badssl.com'));
     }
