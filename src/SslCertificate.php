@@ -32,24 +32,19 @@ use Zerotoprod\StreamSocket\StreamSocket;
  * Certificate::isTrustedRoot('example.com', '/path/to/cafile.pem');
  * ```
  *
- * @see https://github.com/zero-to-prod/ssl-cert-validator
+ *
+ * @link https://github.com/zero-to-prod/ssl-cert-validator
  */
 class SslCertificate
 {
+    /**
+     * @link https://github.com/zero-to-prod/ssl-cert-validator
+     */
     public static function from(string $hostname, array $options = []): Certificate
     {
         return self::certificates($hostname, $options)[0];
     }
 
-    public static function fromFile($pathToCertificate): Certificate
-    {
-        $fileContents = file_get_contents($pathToCertificate);
-        if (! strpos($fileContents, 'BEGIN CERTIFICATE')) {
-            $fileContents = self::der2pem($fileContents);
-        }
-
-        return self::createFromString($fileContents);
-    }
     private static function clientStream(string $address, array $options = []): ClientStream
     {
         return StreamSocket::client(
@@ -76,7 +71,8 @@ class SslCertificate
      *
      * @return array  The SSL certificate details.
      *
-     * @see https://github.com/zero-to-prod/ssl-cert-validator
+     *
+     * @link https://github.com/zero-to-prod/ssl-cert-validator
      */
     public static function rawCertificates(string $hostname, array $options = []): array
     {
@@ -95,6 +91,7 @@ class SslCertificate
      * @param  array   $options
      *
      * @return Certificate[]
+     * @link https://github.com/zero-to-prod/ssl-cert-validator
      */
     public static function certificates(string $hostname, array $options = []): array
     {
@@ -132,7 +129,8 @@ class SslCertificate
      *
      * @throws Throwable  On SSL connection errors (non-hostname mismatch).
      *
-     * @see https://github.com/zero-to-prod/ssl-cert-validator
+     *
+     * @link https://github.com/zero-to-prod/ssl-cert-validator
      */
     public static function hostIsValid(string $hostname): bool
     {
@@ -165,7 +163,8 @@ class SslCertificate
      *
      * @throws Throwable  On SSL connection or certificate parsing errors.
      *
-     * @see https://github.com/zero-to-prod/ssl-cert-validator
+     *
+     * @link https://github.com/zero-to-prod/ssl-cert-validator
      */
     public static function isSelfSigned(string $hostname): bool
     {
@@ -208,7 +207,8 @@ class SslCertificate
      *
      * @throws Throwable  On SSL connection errors or certificate validation failures.
      *
-     * @see https://github.com/zero-to-prod/ssl-cert-validator
+     *
+     * @link https://github.com/zero-to-prod/ssl-cert-validator
      */
     public static function isTrustedRoot(string $hostname, string $cafile): bool
     {

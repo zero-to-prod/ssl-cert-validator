@@ -2,8 +2,10 @@
 
 namespace Zerotoprod\SslCertValidator\Helpers;
 
+use Zerotoprod\Transformable\Transformable;
+
 trait DataModel
 {
     use \Zerotoprod\DataModel\DataModel;
-    use \Zerotoprod\Transformable\Transformable;
+    use Transformable;
 }
