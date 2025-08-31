@@ -32,8 +32,6 @@ use Zerotoprod\StreamSocket\StreamSocket;
  * Certificate::isTrustedRoot('example.com', '/path/to/cafile.pem');
  * ```
  *
- *
- * @link https://github.com/zero-to-prod/ssl-cert-validator
  */
 class SslCertificate
 {
