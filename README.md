@@ -18,6 +18,8 @@
 - [Installation](#installation)
 - [Usage](#usage)
     - [Nested Objects](#nested-objects)
+- [Documentation Publishing](#documentation-publishing)
+  - [Automatic Documentation Publishing](#automatic-documentation-publishing)
 - [Local Development](./LOCAL_DEVELOPMENT.md)
 - [Contributing](#contributing)
 
@@ -49,6 +51,39 @@ SslCertificate::hostIsValid('https://example.com');
 SslCertificate::isExpired('example.com');
 SslCertificate::isSelfSigned('example.com');
 SslCertificate::isTrustedRoot('example.com', '/path/to/cafile.pem');
+```
+
+## Documentation Publishing
+
+You can publish this README to your local documentation directory.
+
+This can be useful for providing documentation for AI agents.
+
+This can be done using the included script:
+
+```bash
+# Publish to default location (./docs/zero-to-prod/ssl-cert-validator)
+vendor/bin/zero-to-prod-ssl-cert-validator
+
+# Publish to custom directory
+vendor/bin/zero-to-prod-ssl-cert-validator /path/to/your/docs
+```
+
+### Automatic Documentation Publishing
+
+You can automatically publish documentation by adding the following to your `composer.json`:
+
+```json
+{
+  "scripts": {
+    "post-install-cmd": [
+      "zero-to-prod-ssl-cert-validator"
+    ],
+    "post-update-cmd": [
+      "zero-to-prod-ssl-cert-validator"
+    ]
+  }
+}
 ```
 
 ## Contributing
