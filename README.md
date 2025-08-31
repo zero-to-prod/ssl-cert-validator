@@ -16,10 +16,10 @@
 - [Introduction](#introduction)
 - [Requirements](#requirements)
 - [Installation](#installation)
-- [Usage](#usage)
-    - [Nested Objects](#nested-objects)
 - [Documentation Publishing](#documentation-publishing)
   - [Automatic Documentation Publishing](#automatic-documentation-publishing)
+- [Usage](#usage)
+    - [Nested Objects](#nested-objects)
 - [Local Development](./LOCAL_DEVELOPMENT.md)
 - [Contributing](#contributing)
 
@@ -40,18 +40,6 @@ composer require zero-to-prod/ssl-cert-validator
 ```
 
 This will add the package to your project’s dependencies and create an autoloader entry for it.
-
-## Usage
-
-```php
-use Zerotoprod\SslCertValidator\SslCertificate;
-
-SslCertificate::rawCertificates('https://example.com');
-SslCertificate::hostIsValid('https://example.com');
-SslCertificate::isExpired('example.com');
-SslCertificate::isSelfSigned('example.com');
-SslCertificate::isTrustedRoot('example.com', '/path/to/cafile.pem');
-```
 
 ## Documentation Publishing
 
@@ -84,6 +72,18 @@ You can automatically publish documentation by adding the following to your `com
     ]
   }
 }
+```
+
+## Usage
+
+```php
+use Zerotoprod\SslCertValidator\SslCertificate;
+
+SslCertificate::rawCertificates('https://example.com');
+SslCertificate::hostIsValid('https://example.com');
+SslCertificate::isExpired('example.com');
+SslCertificate::isSelfSigned('example.com');
+SslCertificate::isTrustedRoot('example.com', '/path/to/cafile.pem');
 ```
 
 ## Contributing
