@@ -6,6 +6,7 @@ use Zerotoprod\SslCertValidator\Helpers\DataModel;
 
 /**
  * @link https://github.com/zero-to-prod/ssl-cert-validator
+ * Fetch, validate, and verify SSL certificates.
  */
 class Certificate
 {
