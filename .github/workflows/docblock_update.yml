@@ -54,9 +54,48 @@ jobs:
               fi
           }
           
-          # Get all PHP files in src directory
-          get_src_php_files() {
-              find src -name "*.php" -type f | sort
+          # Extract the main PHP class file path from composer.json PSR-4 autoload configuration
+          get_main_class_file() {
+              local namespace directory class_name php_file
+          
+              namespace=$(jq -r '.autoload."psr-4" | keys[0] // empty' "${COMPOSER_JSON}")
+              directory=$(jq -r --arg ns "$namespace" '.autoload."psr-4"[$ns] // empty' "${COMPOSER_JSON}")
+          
+              if [[ -z "$namespace" || -z "$directory" ]]; then
+                  echo "Error: Could not extract PSR-4 namespace or directory from ${COMPOSER_JSON}." >&2
+                  return 1
+              fi
+          
+              # Remove trailing backslash from namespace
+              namespace="${namespace%\\}"
+          
+              # Extract class name from namespace (last segment)
+              class_name=$(echo "$namespace" | awk -F'\\\\' '{print $NF}')
+          
+              # Construct PHP file path
+              php_file="${directory}${class_name}.php"
+          
+              # Convert backslashes to forward slashes for file path
+              php_file=$(echo "$php_file" | sed 's/\\/\//g')
+          
+              if [[ ! -f "$php_file" ]]; then
+                  echo "Warning: Main class file '$php_file' not found. Trying to find an alternative..." >&2
+          
+                  # Try to find the first PHP class file in the directory
+                  local alternative_file
+                  alternative_file=$(find "$directory" -maxdepth 1 -name "*.php" -type f | head -1)
+          
+                  if [[ -n "$alternative_file" ]]; then
+                      echo "Using alternative file: $alternative_file" >&2
+                      echo "$alternative_file"
+                      return 0
+                  else
+                      echo "Error: No PHP class files found in directory '$directory'." >&2
+                      return 1
+                  fi
+              fi
+          
+              echo "$php_file"
           }
           
           # Extract package description from composer.json
@@ -85,30 +124,24 @@ jobs:
               echo "$homepage"
           }
           
-          # Update docblock with package description for all files
+          # Update docblock with package description
           update_docblock_with_description() {
-              local php_files description
+              local php_file description
           
-              php_files=$(get_src_php_files)
+              php_file=$(get_main_class_file) || return 1
               description=$(get_package_description) || return 1
           
-              for php_file in $php_files; do
-                  echo "Updating description for $php_file"
-                  execute_docblock_annotator "$php_file" "$description" "--statements=class" || true
-              done
+              execute_docblock_annotator "$php_file" "$description" "--statements=class"
           }
           
-          # Update docblock with homepage link for all files
+          # Update docblock with homepage link
           update_docblock_with_link() {
-              local php_files homepage
+              local php_file homepage
           
-              php_files=$(get_src_php_files)
+              php_file=$(get_main_class_file) || return 1
               homepage=$(get_package_homepage) || return 1
           
-              for php_file in $php_files; do
-                  echo "Updating homepage link for $php_file"
-                  execute_docblock_annotator "$php_file" "@link $homepage" || true
-              done
+              execute_docblock_annotator "$php_file" "@link $homepage"
           }
           
           # Main function to update all docblocks
